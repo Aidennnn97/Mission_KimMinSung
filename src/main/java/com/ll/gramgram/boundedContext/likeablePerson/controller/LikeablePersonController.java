@@ -5,11 +5,11 @@ import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
-import com.ll.gramgram.boundedContext.member.entity.Member;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +26,7 @@ public class LikeablePersonController {
     private final Rq rq;
     private final LikeablePersonService likeablePersonService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/add")
     public String showAdd() {
         return "usr/likeablePerson/add";
@@ -38,6 +39,7 @@ public class LikeablePersonController {
         private final int attractiveTypeCode;
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String add(@Valid AddForm addForm) {
         RsData<LikeablePerson> createRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
@@ -49,6 +51,7 @@ public class LikeablePersonController {
         return rq.redirectWithMsg("/likeablePerson/list", createRsData);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public String showList(Model model) {
         InstaMember instaMember = rq.getMember().getInstaMember();
@@ -62,13 +65,26 @@ public class LikeablePersonController {
         return "usr/likeablePerson/list";
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Long id){
-        Member member = rq.getMember(); // rq 클래스로 현재 사용자 객체 생성
-        RsData<LikeablePerson> createRsDate = likeablePersonService.delete(member, id); // 서비스에 현제사용자의 정보와 url로 받아온 삭제할 id값 전달 하고  삭제 요청
-        if (createRsDate.isFail()){
-            return rq.historyBack(createRsDate);
+    public String delete(@PathVariable("id") Long id) {
+        LikeablePerson likeablePerson = likeablePersonService.findById(id).orElse(null);
+
+        if (likeablePerson == null){
+            return rq.historyBack("이미 삭제된 상대입니다.");
         }
-        return rq.redirectWithMsg("/likeablePerson/list", createRsDate);
+
+        if(!rq.getMember().getInstaMember().getId().equals(likeablePerson.getFromInstaMember().getId())){
+            return rq.historyBack("권한이 없습니다.");
+        }
+
+        RsData<LikeablePerson> deleteRsDate = likeablePersonService.delete(likeablePerson);
+
+        if (deleteRsDate.isFail()) {
+            return rq.historyBack(deleteRsDate);
+        }
+
+        return rq.redirectWithMsg("/likeablePerson/list", deleteRsDate);
     }
+
 }

@@ -22,7 +22,7 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if ( member.hasConnectedInstaMember() == false ) {
+        if (member.hasConnectedInstaMember() == false) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
 
@@ -50,18 +50,13 @@ public class LikeablePersonService {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
 
+    public Optional<LikeablePerson> findById(Long id){
+        return likeablePersonRepository.findById(id);
+    }
+
     @Transactional
-    public RsData<LikeablePerson> delete(Member member, Long id) {
-        // 현재 유저의 인스타아이디의 호감목록에서 삭제하고자하는 id(url에서 가져온)값을 가진 항목을 삭제
-        Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);    // Likeable테이블의 id(기본키)로 찾고
-
-        if (likeablePerson.isPresent()){    // 있으면
-            LikeablePerson person = likeablePerson.get();   // LikeablePerson 타입의 변수 person에 담아
-            if (member.getInstaMember().getId().equals(person.getFromInstaMember().getId())){ // 현재 접속유저의 인스타id와 person의 from인스타 id가 같으면
-                likeablePersonRepository.delete(person);    // 삭제
-            }
-        }
-
-        return RsData.of("S-2", "인스타유저(%s)를 호감상대목록에서 삭제하였습니다".formatted(likeablePerson.get().getToInstaMemberUsername()));
+    public RsData<LikeablePerson> delete(LikeablePerson likeablePerson) {
+        likeablePersonRepository.delete(likeablePerson);    // 삭제
+        return RsData.of("S-1", "인스타유저(%s)를 호감상대목록에서 삭제하였습니다".formatted(likeablePerson.getToInstaMember().getUsername()));
     }
 }
