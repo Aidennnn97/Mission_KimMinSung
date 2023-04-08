@@ -1,4 +1,8 @@
 spring:
+  mvc:
+    hidden-method:
+      filter:
+        enabled: true
   profiles:
     active: dev
   datasource:
@@ -18,8 +22,8 @@ spring:
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
             client-authentication-method: POST
           google:
-            client-id: 370575249465-nj31l58eltnt24qggiup278unhnrg1a2.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 370575249465-8546d7fcqfe0skp1pa1jeqm2k3h8idgg.apps.googleusercontent.com
+            client-secret: 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
             scope:
               - profile
               - email
