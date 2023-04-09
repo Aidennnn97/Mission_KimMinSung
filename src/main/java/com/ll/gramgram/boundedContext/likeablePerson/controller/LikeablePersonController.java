@@ -55,7 +55,9 @@ public class LikeablePersonController {
 
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
-            List<LikeablePerson> likeablePeople = likeablePersonService.findByFromInstaMemberId(instaMember.getId());
+            // 해당 인스타회원이 좋아하는 사람 목록
+//            List<LikeablePerson> likeablePeople = likeablePersonService.findByFromInstaMemberId(instaMember.getId());
+            List<LikeablePerson> likeablePeople = instaMember.getFromLikeablePeople();
             model.addAttribute("likeablePeople", likeablePeople);
         }
 
@@ -67,15 +69,13 @@ public class LikeablePersonController {
     public String delete(@PathVariable("id") Long id) {
         LikeablePerson likeablePerson = likeablePersonService.findById(id).orElse(null);
 
-        if (likeablePerson == null){
-            return rq.historyBack("이미 삭제된 상대입니다.");
+        RsData canMemberDeleteRsData = likeablePersonService.canMemberDelete(rq.getMember(), likeablePerson);
+
+        if (canMemberDeleteRsData.isFail()){
+            return rq.historyBack(canMemberDeleteRsData);
         }
 
-        if(!rq.getMember().getInstaMember().getId().equals(likeablePerson.getFromInstaMember().getId())){
-            return rq.historyBack("권한이 없습니다.");
-        }
-
-        RsData<LikeablePerson> deleteRsDate = likeablePersonService.delete(likeablePerson);
+        RsData deleteRsDate = likeablePersonService.delete(likeablePerson);
 
         if (deleteRsDate.isFail()) {
             return rq.historyBack(deleteRsDate);

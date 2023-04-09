@@ -46,8 +46,8 @@ public class LikeablePersonControllerTests {
                 .andExpect(status().is2xxSuccessful())
                 .andExpect(content().string(containsString("""
                         먼저 본인의 인스타그램 아이디를 입력해주세요.
-                        """.stripIndent().trim())));
-
+                        """.stripIndent().trim())))
+        ;
     }
 
     @Test
@@ -79,7 +79,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(content().string(containsString("""
                         <input type="submit" value="추가"
                         """.stripIndent().trim())));
-
+        ;
     }
 
     @Test
@@ -100,7 +100,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("add"))
                 .andExpect(status().is3xxRedirection());
-
+        ;
     }
 
     @Test
@@ -121,7 +121,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("add"))
                 .andExpect(status().is3xxRedirection());
-
+        ;
     }
 
     @Test
@@ -150,6 +150,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(content().string(containsString("""
                         <span class="toInstaMember_attractiveTypeDisplayName">성격</span>
                         """.stripIndent().trim())));
+        ;
     }
 
     @Test
@@ -169,9 +170,51 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"))
+        ;
 
         assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(false);
     }
 
+    @Test
+    @DisplayName("호감삭제(없는거 삭제, 삭제가 안되어야 함)")
+    @WithUserDetails("user3")
+    void t007() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/likeablePerson/delete/100")
+                                .with(csrf())
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is4xxClientError())
+        ;
+    }
+
+    @Test
+    @DisplayName("호감삭제(권한이 없는 경우, 삭제가 안됨)")
+    @WithUserDetails("user2")
+    void t008() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/likeablePerson/delete/1")
+                                .with(csrf())
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is4xxClientError())
+        ;
+
+        assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(true);
+    }
 }
