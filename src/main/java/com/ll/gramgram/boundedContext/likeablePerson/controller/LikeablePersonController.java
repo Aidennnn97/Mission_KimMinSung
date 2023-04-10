@@ -39,6 +39,15 @@ public class LikeablePersonController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String add(@Valid AddForm addForm) {
+        // 내가 좋아하는 사람 리스트
+        List<LikeablePerson> fromLikeablePeople = rq.getMember().getInstaMember().getFromLikeablePeople();
+        for(LikeablePerson person : fromLikeablePeople){    // 내가 좋아하는 사람 리스트 중에서
+            if (person.getToInstaMemberUsername().equals(addForm.getUsername())){   // 현재 호감표시하고자 하는 상대방의 인스타그램 아이디와 같은게 있다면
+                return rq.historyBack("이미 등록된 호감상대 입니다.");  // rq.historyBack();
+            }
+        }
+
+
         RsData<LikeablePerson> createRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
 
         if (createRsData.isFail()) {
