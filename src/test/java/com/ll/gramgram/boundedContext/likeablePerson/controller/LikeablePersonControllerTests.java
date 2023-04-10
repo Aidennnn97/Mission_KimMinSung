@@ -81,7 +81,7 @@ public class LikeablePersonControllerTests {
     }
 
     @Test
-    @DisplayName("등록 폼 처리(user2가 user3에게 호감표시(외모))")
+    @DisplayName("등록 폼 처리(user2가 insta_user3에게 호감표시(외모))")
     @WithUserDetails("user2")
     void t003() throws Exception {
         // WHEN
@@ -220,6 +220,26 @@ public class LikeablePersonControllerTests {
                         .with(csrf()) // CSRF 키 생성
                         .param("username", "insta_user100")
                         .param("attractiveTypeCode", "2")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @DisplayName("11명 이상 등록 폼 불가능 처리(user2가 insta_user333(11번째)에게 호감표시)")
+    @WithUserDetails("user2")
+    void t010() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user333")
+                        .param("attractiveTypeCode", "1")
                 )
                 .andDo(print());
 
