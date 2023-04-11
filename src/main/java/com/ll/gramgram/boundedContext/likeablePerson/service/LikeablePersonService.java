@@ -82,4 +82,5 @@ public class LikeablePersonService {
 
         return RsData.of("S-1", "삭제가 가능합니다.");
     }
+
 }
