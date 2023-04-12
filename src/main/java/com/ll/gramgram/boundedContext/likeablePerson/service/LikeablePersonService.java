@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if (member.hasConnectedInstaMember() == false) {
+        if (!member.hasConnectedInstaMember()) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
 
@@ -83,4 +84,30 @@ public class LikeablePersonService {
         return RsData.of("S-1", "삭제가 가능합니다.");
     }
 
+    @Transactional
+    public RsData update(LikeablePerson likeablePerson, int attractiveTypeCode) {
+        String getBeforeAttractiveTypeDisplayName = likeablePerson.getAttractiveTypeDisplayName();  // 이전 호감사유를 담는 변수
+
+        likeablePerson.setModifyDate(LocalDateTime.now());  // 수정시간 업데이트
+        likeablePerson.setAttractiveTypeCode(attractiveTypeCode);   // 호감사유 업데이트
+        likeablePersonRepository.save(likeablePerson);  // 변경사항 저장
+
+        return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다."
+                .formatted(likeablePerson.getToInstaMember().getUsername(),
+                        getBeforeAttractiveTypeDisplayName,
+                        likeablePerson.getAttractiveTypeDisplayName()));
+    }
+
+    public RsData canMemberUpdate(Member member, LikeablePerson likeablePerson) {
+        // 현제 사용자의 인스타계정 번호
+        long memberInstaMemberId = member.getInstaMember().getId();
+        // 등록(수정) 대상을 등록한 유저(호감표시한 사람)의 인스타계정 번호
+        long fromInstaMemberId = likeablePerson.getFromInstaMember().getId();
+
+        if(memberInstaMemberId != fromInstaMemberId){
+            return RsData.of("F-2", "권한이 없습니다.");
+        }
+
+        return RsData.of("S-1", "수정이 가능합니다.");
+    }
 }
