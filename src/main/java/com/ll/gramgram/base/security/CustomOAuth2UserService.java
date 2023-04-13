@@ -4,9 +4,6 @@ import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -37,15 +34,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String oauthId = oAuth2User.getName();
 
         if (providerTypeCode.equals("NAVER")){
-            JSONParser p = new JSONParser();
-            try {
-                JSONObject obj = new JSONObject();
-                oauthId = obj.toJSONString();
-                obj = (JSONObject) p.parse(oauthId);
-                oauthId = (String) obj.get("id");
-            } catch (ParseException e) {
-                throw new RuntimeException(e);
-            }
+            Map<String, Object> response = oAuth2User.getAttribute("response");
+            oauthId = (String) response.get("id");
         }
 
         String username = providerTypeCode + "__%s".formatted(oauthId);
