@@ -1,5 +1,6 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
+import com.ll.gramgram.base.appConfig.AppConfig;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -20,6 +21,29 @@ import java.util.Optional;
 public class LikeablePersonService {
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
+
+    public RsData canLike(Member member, String username, int attractiveTypeCode){
+        // 내가 좋아하는 사람 리스트
+        List<LikeablePerson> fromLikeablePeople = member.getInstaMember().getFromLikeablePeople();
+        // 내가 좋아하는 사람 리스트 중에서 입력한 호감대상 아이디와 일치하는 아이디 찾기
+        LikeablePerson fromLikeablePerson = fromLikeablePeople
+                .stream()
+                .filter(e -> e.getToInstaMember().getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+        // 입력한 호감대상 아이디와 일치하는게 있고, 호감사유도 같으면
+        if (fromLikeablePerson != null && fromLikeablePerson.getAttractiveTypeCode() == attractiveTypeCode){
+            return RsData.of("F-3", "이미 %s님에 대해서 호감표시를 했습니다.".formatted(username));
+        }
+        // 설정파일에서 값 가져오기
+        long likeablePersonFromMax = AppConfig.getLikeablePersonFromMax();
+
+        if (fromLikeablePeople.size() >= likeablePersonFromMax){
+            return RsData.of("F-4", "최대 %d명에 대해서만 호감표시가 가능합니다.".formatted(likeablePersonFromMax));
+        }
+
+        return RsData.of("S-2", "%s님에 대해서 호감표시가 가능합니다.".formatted(username));
+    }
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
@@ -67,7 +91,7 @@ public class LikeablePersonService {
         return RsData.of("S-1", "인스타유저(%s)를 호감상대목록에서 삭제하였습니다".formatted(likeablePerson.getToInstaMember().getUsername()));
     }
 
-    public RsData canMemberDelete(Member member, LikeablePerson likeablePerson) {
+    public RsData canDelete(Member member, LikeablePerson likeablePerson) {
         if (likeablePerson == null){
             return RsData.of("F-1", "이미 삭제되었습니다.");
         }

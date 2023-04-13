@@ -39,26 +39,10 @@ public class LikeablePersonController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/add")
     public String add(@Valid AddForm addForm) {
-        // 내가 좋아하는 사람 리스트
-        List<LikeablePerson> fromLikeablePeople = rq.getMember().getInstaMember().getFromLikeablePeople();
+        RsData canLikeRsData = likeablePersonService.canLike(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
 
-        for(LikeablePerson likeablePerson : fromLikeablePeople){    // 내가 좋아하는 사람 리스트 중에서
-            if (likeablePerson.getToInstaMember().getUsername().equals(addForm.getUsername())){   // 상대방의 인스타그램 아이디가 같으면서
-                if (likeablePerson.getAttractiveTypeCode() != addForm.getAttractiveTypeCode()){  // 매력포인트가 다르면
-                    RsData canMemberUpdateRsData = likeablePersonService.canMemberUpdate(rq.getMember(), likeablePerson);   // 권한 확인
-                    if (canMemberUpdateRsData.isFail()){
-                        return rq.historyBack(canMemberUpdateRsData);
-                    }
-                    RsData updateRsData = likeablePersonService.update(likeablePerson, addForm.getAttractiveTypeCode());    // 업데이트 요청
-                    return rq.redirectWithMsg("/likeablePerson/list", updateRsData);
-                } else {    // 매력포인트도 같으면
-                    return rq.historyBack("이미 등록된 호감상대 입니다.");  // rq.historyBack();
-                }
-            }
-        }
-
-        if (fromLikeablePeople.size() >= 10){
-            return rq.historyBack("11명 이상 등록할 수 없습니다.");
+        if (canLikeRsData.isFail()){
+            return rq.historyBack(canLikeRsData);
         }
 
         RsData<LikeablePerson> createRsData = likeablePersonService.like(rq.getMember(), addForm.getUsername(), addForm.getAttractiveTypeCode());
@@ -91,10 +75,10 @@ public class LikeablePersonController {
     public String delete(@PathVariable("id") Long id) {
         LikeablePerson likeablePerson = likeablePersonService.findById(id).orElse(null);
 
-        RsData canMemberDeleteRsData = likeablePersonService.canMemberDelete(rq.getMember(), likeablePerson);
+        RsData canDeleteRsData = likeablePersonService.canDelete(rq.getMember(), likeablePerson);
 
-        if (canMemberDeleteRsData.isFail()){
-            return rq.historyBack(canMemberDeleteRsData);
+        if (canDeleteRsData.isFail()){
+            return rq.historyBack(canDeleteRsData);
         }
 
         RsData deleteRsDate = likeablePersonService.delete(likeablePerson);
