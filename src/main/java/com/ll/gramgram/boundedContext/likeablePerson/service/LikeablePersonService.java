@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +22,12 @@ public class LikeablePersonService {
     private final InstaMemberService instaMemberService;
 
     public RsData canLike(Member member, String username, int attractiveTypeCode){
+        if (!member.hasConnectedInstaMember()) {
+            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
+        }
+        if (member.getInstaMember().getUsername().equals(username)){
+            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
+        }
         // 내가 좋아하는 사람 리스트
         List<LikeablePerson> fromLikeablePeople = member.getInstaMember().getFromLikeablePeople();
         // 내가 좋아하는 사람 리스트 중에서 입력한 호감대상 아이디와 일치하는 아이디 찾기
@@ -47,14 +52,6 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if (!member.hasConnectedInstaMember()) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
-        }
-
-        if (member.getInstaMember().getUsername().equals(username)) {
-            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
-        }
-
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
@@ -109,20 +106,29 @@ public class LikeablePersonService {
     }
 
     @Transactional
-    public RsData update(LikeablePerson likeablePerson, int attractiveTypeCode) {
-        String getBeforeAttractiveTypeDisplayName = likeablePerson.getAttractiveTypeDisplayName();  // 이전 호감사유를 담는 변수
+    public RsData modifyAttractive(Member member, String username, int attractiveTypeCode) {
+        // 내가 좋아하는 사람 리스트
+        List<LikeablePerson> fromLikeablePeople = member.getInstaMember().getFromLikeablePeople();
+        // 내가 좋아하는 사람 리스트 중에서 입력한 호감대상 아이디와 일치하는 아이디 찾기
+        LikeablePerson fromLikeablePerson = fromLikeablePeople
+                .stream()
+                .filter(e -> e.getToInstaMember().getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
 
-        likeablePerson.setModifyDate(LocalDateTime.now());  // 수정시간 업데이트
-        likeablePerson.setAttractiveTypeCode(attractiveTypeCode);   // 호감사유 업데이트
-        likeablePersonRepository.save(likeablePerson);  // 변경사항 저장
+        if (fromLikeablePerson == null){
+            return RsData.of("F-7", "호감표시를 하지 않았습니다.");
+        }
 
-        return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다."
-                .formatted(likeablePerson.getToInstaMember().getUsername(),
-                        getBeforeAttractiveTypeDisplayName,
-                        likeablePerson.getAttractiveTypeDisplayName()));
+        String beforeAttractiveTypeDisplayName = fromLikeablePerson.getAttractiveTypeDisplayName();
+
+        fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
+        likeablePersonRepository.save(fromLikeablePerson);
+
+        return RsData.of("S-3", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, beforeAttractiveTypeDisplayName, fromLikeablePerson.getAttractiveTypeDisplayName()));
     }
 
-    public RsData canMemberUpdate(Member member, LikeablePerson likeablePerson) {
+    public RsData canModifyAttractive(Member member, LikeablePerson likeablePerson) {
         // 현제 사용자의 인스타계정 번호
         long memberInstaMemberId = member.getInstaMember().getId();
         // 등록(수정) 대상을 등록한 유저(호감표시한 사람)의 인스타계정 번호
