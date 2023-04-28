@@ -3,47 +3,20 @@ spring:
     hidden-method:
       filter:
         enabled: true
+
   profiles:
     active: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/gram__dev?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul
-    username: lldj
-    password: lldj123414
-  security:
-    oauth2:
-      client:
-        registration:
-          kakao:
-            clientId: 4bf330de109c86c2f1b99ad9157fd220
-            scope:
-            client-name: Kakao
-            authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
-            client-authentication-method: POST
-          google:
-            client-id: 370575249465-8546d7fcqfe0skp1pa1jeqm2k3h8idgg.apps.googleusercontent.com
-            client-secret: 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
-            scope:
-              - profile
-              - email
-        provider:
-          kakao:
-            authorization-uri: https://kauth.kakao.com/oauth/authorize
-            token-uri: https://kauth.kakao.com/oauth/token
-            user-info-uri: https://kapi.kakao.com/v2/user/me
-            user-name-attribute: id
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        use_sql_comments: true
+    include:
+      - secret2
+
 logging:
   level:
     root: INFO
     com.ll.gramgram: DEBUG
     org.hibernate.orm.jdbc.bind: TRACE
     org.hibernate.orm.jdbc.extract: TRACE
+
+custom:
+  likeablePerson:
+    from:
+      max: 10

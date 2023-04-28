@@ -37,4 +37,6 @@ out/
 .vscode/
 
 ### Custom ###
-application.yml
+src/main/resources/application-secret2.yml
+
+src/main/generated

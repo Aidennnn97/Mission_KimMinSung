@@ -16,8 +16,13 @@
     </th:block>
 
     <th:block th:if="${@rq.member.hasConnectedInstaMember}">
+        <!-- 내가 좋아하는 사람의 수 -->
+        <span th:text="|내가 좋아하는 사람의 수 : ${#lists.size(@rq.member.instaMember.fromLikeablePeople)}|"></span>
+        <!-- 나를 좋아하는 사람의 수 -->
+        <span th:text="|나를 좋아하는 사람의 수 : ${#lists.size(@rq.member.instaMember.toLikeablePeople)}|"></span>
+
         <ul>
-            <li th:each="likeablePerson: ${likeablePeople}">
+            <li th:each="likeablePerson: ${@rq.member.instaMember.fromLikeablePeople}">
                 <span class="toInstaMember_username" th:text="${likeablePerson.toInstaMember.username}"></span>
                 <span class="toInstaMember_attractiveTypeDisplayName"
                       th:text="${likeablePerson.attractiveTypeDisplayName}"></span>
