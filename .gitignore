@@ -38,3 +38,5 @@ out/
 
 ### Custom ###
 src/main/resources/application-secret2.yml
+
+src/main/generated
