@@ -22,17 +22,24 @@ public class QLikeablePerson extends EntityPathBase<LikeablePerson> {
 
     public static final QLikeablePerson likeablePerson = new QLikeablePerson("likeablePerson");
 
+    public final com.ll.gramgram.base.baseEntity.QBaseEntity _super = new com.ll.gramgram.base.baseEntity.QBaseEntity(this);
+
     public final NumberPath<Integer> attractiveTypeCode = createNumber("attractiveTypeCode", Integer.class);
 
-    public final DateTimePath<java.time.LocalDateTime> createDate = createDateTime("createDate", java.time.LocalDateTime.class);
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> createDate = _super.createDate;
 
     public final com.ll.gramgram.boundedContext.instaMember.entity.QInstaMember fromInstaMember;
 
     public final StringPath fromInstaMemberUsername = createString("fromInstaMemberUsername");
 
-    public final NumberPath<Long> id = createNumber("id", Long.class);
+    //inherited
+    public final NumberPath<Long> id = _super.id;
 
-    public final DateTimePath<java.time.LocalDateTime> modifyDate = createDateTime("modifyDate", java.time.LocalDateTime.class);
+    //inherited
+    public final DateTimePath<java.time.LocalDateTime> modifyDate = _super.modifyDate;
+
+    public final DateTimePath<java.time.LocalDateTime> modifyUnlockDate = createDateTime("modifyUnlockDate", java.time.LocalDateTime.class);
 
     public final com.ll.gramgram.boundedContext.instaMember.entity.QInstaMember toInstaMember;
 

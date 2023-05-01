@@ -16,14 +16,14 @@ public class LikeablePersonRepositoryImpl implements LikeablePersonRepositoryCus
     public Optional<LikeablePerson> findQslByFromInstaMemberIdAndToInstaMember_username(long fromInstaMemberId, String toInstaMemberUsername) {
         return Optional.ofNullable(
                 jpaQueryFactory
-                        .selectFrom(likeablePerson) // select 와 from 의 줄인 표현
+                        .selectFrom(likeablePerson)
                         .where(
-                                likeablePerson.fromInstaMember.id.eq(fromInstaMemberId) // likeablePerson의 fromInstaMember의 id 는
+                                likeablePerson.fromInstaMember.id.eq(fromInstaMemberId)
                                         .and(
                                                 likeablePerson.toInstaMember.username.eq(toInstaMemberUsername)
                                         )
                         )
-                        .fetchOne() // 하나 가져옴
+                        .fetchOne()
         );
     }
 }
