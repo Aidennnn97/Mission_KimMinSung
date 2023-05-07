@@ -6,7 +6,6 @@ spring:
   profiles:
     active: dev
     include: secret
-
   security:
     oauth2:
       client:
@@ -69,6 +68,6 @@ logging:
     org.hibernate.orm.jdbc.extract: TRACE
 custom:
   likeablePerson:
-    modifyCoolTime: '#{60 * 60 * 3}'
+    modifyCoolTime: '#{5}' #'#{60 * 60 * 3}'
     from:
       max: 10
