@@ -46,7 +46,7 @@ public class NotificationControllerTests {
         long unreadCount = notifications
                 .stream()
                 .filter(notification -> !notification.isRead())
-                .count(); // 아직 읽지 않은 알림의 개수를 카운트
+                .count();
 
         assertThat(unreadCount).isEqualTo(1);
 
@@ -64,13 +64,14 @@ public class NotificationControllerTests {
     }
 
     @Test
-    @DisplayName("아직 읽지 않은 알림이 있을 때 상단바에 인디케이터 표시.")
+    @DisplayName("아직 읽지 않은 알림이 있을 때 상단바에 인디케이터 표시")
     @WithUserDetails("user4")
     void t002() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(get("/usr/home/about"))
                 .andDo(print());
+
         // THEN
         resultActions
                 .andExpect(status().is2xxSuccessful())
@@ -80,13 +81,14 @@ public class NotificationControllerTests {
     }
 
     @Test
-    @DisplayName("알림 목록에 접속하여 확인 시 인디케이터 사라짐.")
+    @DisplayName("아직 읽지 않은 알림이 있을 때, 알림리스트에 접속하면 상단바에 인디케이터 표시가 더 이상 안됨")
     @WithUserDetails("user4")
     void t003() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(get("/usr/notification/list"))
                 .andDo(print());
+
         // THEN
         resultActions
                 .andExpect(status().is2xxSuccessful())

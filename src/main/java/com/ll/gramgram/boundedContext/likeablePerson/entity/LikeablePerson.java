@@ -34,16 +34,12 @@ public class LikeablePerson extends BaseEntity {
 
     private int attractiveTypeCode; // 매력포인트(1=외모, 2=성격, 3=능력)
 
-    public boolean isModifyUnlocked() { // 수정이 잠겨 있는지?
-        return modifyUnlockDate.isBefore(LocalDateTime.now()); // 현재시간 보다 과거일 때 true
+    public boolean isModifyUnlocked() {
+        return modifyUnlockDate.isBefore(LocalDateTime.now());
     }
 
     // 초 단위에서 올림 해주세요.
     public String getModifyUnlockDateRemainStrHuman() {
-//        Duration remainTime = Duration.between(LocalDateTime.now(), modifyUnlockDate);
-//        long hours = remainTime.toHours();
-//        long mins = remainTime.toMinutes() % 60;
-//        return "%d시간 %d분 후".formatted(hours, mins + 1);
         return Ut.time.diffFormat1Human(LocalDateTime.now(), modifyUnlockDate);
     }
 
