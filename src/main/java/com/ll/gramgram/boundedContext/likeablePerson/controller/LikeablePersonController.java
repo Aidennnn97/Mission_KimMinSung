@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -121,15 +122,30 @@ public class LikeablePersonController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @GetMapping("/toList")
-    public String showToList(Model model) {
+    @RequestMapping("/toList")
+    public String showToList(Model model, @RequestParam(value = "gender", required = false) String gender) {
         InstaMember instaMember = rq.getMember().getInstaMember();
 
         // 인스타인증을 했는지 체크
         if (instaMember != null) {
             // 해당 인스타회원이 좋아하는 사람들 목록
             List<LikeablePerson> likeablePeople = instaMember.getToLikeablePeople();
-            model.addAttribute("likeablePeople", likeablePeople);
+
+            List<LikeablePerson> filteredLikeablePeople = new ArrayList<>();
+            if (gender == null || gender.isEmpty()) {
+                // gender 값이 없을 경우 전체 리스트 반환
+                filteredLikeablePeople.addAll(likeablePeople);
+            } else {
+                // gender 값에 따라 필터링된 리스트 반환
+                for (LikeablePerson likeablePerson : likeablePeople) {
+                    if (likeablePerson.getFromInstaMember().getGender().equals(gender)) {
+                        filteredLikeablePeople.add(likeablePerson);
+                    }
+                }
+            }
+
+            model.addAttribute("likeablePeople", filteredLikeablePeople);
+
         }
 
         return "usr/likeablePerson/toList";
