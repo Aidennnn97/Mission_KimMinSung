@@ -1,6 +1,5 @@
 package com.ll.gramgram.boundedContext.likeablePerson.controller;
 
-import com.ll.gramgram.base.baseEntity.BaseEntity;
 import com.ll.gramgram.base.rq.Rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
@@ -146,17 +145,17 @@ public class LikeablePersonController {
             }
 
             switch (sortCode) {
-                case 1: // 최신순
-                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(BaseEntity::getModifyDate, Comparator.nullsLast(Comparator.reverseOrder())));
-                    break;
+//                case 1: // 최신순, 인스타멤버는 엔티티에서 이미 id(PK) 값으로 정렬이 되어있고 PK는 인덱스 값을 가지기 때문에 빠르기 때문에, 정렬할 필요 없음
+//                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(LikeablePerson::getId, Comparator.nullsLast(Comparator.reverseOrder())));
+//                    break;
                 case 2: // 오래된순
-                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(BaseEntity::getModifyDate, Comparator.nullsFirst(Comparator.naturalOrder())));
+                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(LikeablePerson::getId, Comparator.nullsLast(Comparator.naturalOrder())));
                     break;
                 case 3: // 인기 많은 순
-                     likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(likeablePerson -> likeablePerson.getFromInstaMember().getLikes(), Comparator.nullsLast(Comparator.reverseOrder())));
+                     likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(likeablePerson -> ((LikeablePerson)likeablePerson).getFromInstaMember().getLikes()).reversed());
                     break;
                 case 4: // 인기 적은 순
-                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(likeablePerson -> likeablePerson.getFromInstaMember().getLikes(), Comparator.nullsFirst(Comparator.naturalOrder())));
+                    likeablePeopleStream = likeablePeopleStream.sorted(Comparator.comparing(likeablePerson -> likeablePerson.getFromInstaMember().getLikes(), Comparator.nullsLast(Comparator.naturalOrder())));
                     break;
                 case 5: // 성별 순, 최신 순
                      likeablePeopleStream = likeablePeopleStream
@@ -170,7 +169,7 @@ public class LikeablePersonController {
                                          return 0;
                                      }
                                  })
-                                 .thenComparing(BaseEntity::getModifyDate, Comparator.reverseOrder())
+                                 .thenComparing(LikeablePerson::getModifyDate, Comparator.reverseOrder())
                              );
                     break;
                 case 6: // 호감사유 순, 최신 순
@@ -185,7 +184,7 @@ public class LikeablePersonController {
                                              return 0;
                                          }
                                      })
-                                     .thenComparing(BaseEntity::getModifyDate, Comparator.reverseOrder())
+                                     .thenComparing(LikeablePerson::getModifyDate, Comparator.reverseOrder())
                              );
                     break;
 
