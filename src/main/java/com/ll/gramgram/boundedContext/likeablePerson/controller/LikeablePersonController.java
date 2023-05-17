@@ -159,32 +159,14 @@ public class LikeablePersonController {
                     break;
                 case 5: // 성별 순, 최신 순
                      likeablePeopleStream = likeablePeopleStream
-                             .sorted(Comparator.<LikeablePerson, String>comparing(likeablePerson -> likeablePerson.getFromInstaMember().getGender(), Comparator.nullsLast(Comparator.reverseOrder()))
-                                 .thenComparing((a, b) -> {
-                                     if ("W".equals(a.getFromInstaMember().getGender()) && !"W".equals(b.getFromInstaMember().getGender())) {
-                                         return -1;
-                                     } else if ("M".equals(a.getFromInstaMember().getGender()) && "U".equals(b.getFromInstaMember().getGender())) {
-                                         return -1;
-                                     } else {
-                                         return 0;
-                                     }
-                                 })
-                                 .thenComparing(LikeablePerson::getModifyDate, Comparator.reverseOrder())
+                             .sorted(Comparator.comparing((LikeablePerson likeablePerson) -> likeablePerson.getFromInstaMember().getGender(), Comparator.nullsLast(Comparator.reverseOrder()))
+                                 .thenComparing(LikeablePerson::getId, Comparator.reverseOrder())
                              );
                     break;
                 case 6: // 호감사유 순, 최신 순
                      likeablePeopleStream = likeablePeopleStream
                              .sorted(Comparator.comparing(LikeablePerson::getAttractiveTypeCode, Comparator.nullsLast(Comparator.naturalOrder()))
-                                     .thenComparing((a, b) -> {
-                                         if(1 == a.getAttractiveTypeCode() && 1 != b.getAttractiveTypeCode()){
-                                             return -1;
-                                         } else if (2 == a.getAttractiveTypeCode() && 3 == b.getAttractiveTypeCode()) {
-                                             return -1;
-                                         } else {
-                                             return 0;
-                                         }
-                                     })
-                                     .thenComparing(LikeablePerson::getModifyDate, Comparator.reverseOrder())
+                                     .thenComparing(LikeablePerson::getId, Comparator.reverseOrder())
                              );
                     break;
 
